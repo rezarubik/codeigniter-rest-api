@@ -1,4 +1,6 @@
 <?php
+header('Access-Control-Allow-Origin: *');
+header("Access-Control-Allow-Methods: GET, OPTIONS");
 
 use Restserver\Libraries\REST_Controller;
 
@@ -12,6 +14,16 @@ class Mahasiswa extends REST_Controller
     public function __construct()
     {
         parent::__construct();
+
+        // todo: For handling cors
+        header('Access-Control-Allow-Origin: *');
+        header("Access-Control-Allow-Headers: X-API-KEY, Origin, X-Requested-With, Content-Type, Accept, Access-Control-Request-Method");
+        header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
+        $method = $_SERVER['REQUEST_METHOD'];
+        if ($method == "OPTIONS") {
+            die();
+        }
+
         $this->load->model('Mahasiswa_model', 'mahasiswa');
     }
 
@@ -98,9 +110,11 @@ class Mahasiswa extends REST_Controller
             'jurusan' => $this->put('jurusan')
         ];
         if ($this->mahasiswa->updateMahasiswa($data, $id) > 0) {
+            $mahasiswa = $this->mahasiswa->getMahasiswa($id);
             $this->response([
                 'status' => true,
-                'message' => 'Data Mahasiswa have been updated!'
+                'message' => 'Data Mahasiswa have been updated!',
+                'data' => $mahasiswa
             ], REST_Controller::HTTP_OK);
         } else {
             $this->response([
